@@ -15,6 +15,8 @@ import os
 import sys
 from datetime import timedelta
 
+AUTH_USER_MODEL = 'users.CustomUser'
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -78,14 +80,24 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ecommerce_api.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30), #Vida util del token, luego debera usar un token de actualizacion para obtener un nuevo token de acceso
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),    #Validez del token de actualizacion
+    'ALGORITHM': 'HS256',                           #Algoritmo de encriptacion
+    'SIGNING_KEY': 'SECRET_KEY',                    #Clave secreta para firmar tokens. Almacenar en variables de entorno o servicio de gestion secreto 
+                                                    #como AWS Secret Manager o Kubernetes Secrets
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'BLACKLIST_AFTER_ROTATION': True,
 }
 
 
@@ -122,7 +134,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = 'static/'
 
 # Default primary key field type
